@@ -2,9 +2,9 @@
 
 Google sign-in as a [Nitro module](https://nitro.margelo.com):
 [GoogleSignIn SDK](https://github.com/google/GoogleSignIn-iOS) on iOS,
-[Credential Manager](https://developer.android.com/identity/sign-in/credential-manager) on Android.
-Alternative to [`@react-native-google-signin/google-signin`](https://github.com/react-native-google-signin/google-signin)
-for apps that only need a Google ID token.
+[Credential Manager](https://developer.android.com/identity/sign-in/credential-manager) +
+[AuthorizationClient](https://developer.android.com/identity/authorization) on Android.
+Alternative to [`@react-native-google-signin/google-signin`](https://github.com/react-native-google-signin/google-signin).
 
 ## Usage
 
@@ -21,7 +21,27 @@ await GoogleAuth.signOut();
 ```
 
 `errorCode`: `cancelled` | `inProgress` | `playServicesNotAvailable` (Android) |
-`noCredential` (Android, no usable Google account) | `error` (details in `errorMessage`).
+`noCredential` (no usable Google account / nothing to restore) | `error` (details in `errorMessage`).
+
+### Beyond the basic flow
+
+```ts
+// extra scopes and/or a one-time code the backend exchanges for tokens
+// (Android may show a consent screen after the account sheet)
+const { user, serverAuthCode, grantedScopes } = await GoogleAuth.signIn({
+  scopes: ['https://www.googleapis.com/auth/fitness.activity.read'],
+  offlineAccess: true,
+});
+
+// no-UI sign-in for returning users (previously authorized account only)
+const silent = await GoogleAuth.signInSilently();
+
+// best-effort unlink of the app from the Google account
+await GoogleAuth.revokeAccess();
+
+// Android: verify Play Services, optionally showing Google's fix-it dialog
+const ok = await GoogleAuth.checkPlayServices();
+```
 
 ## Setup
 
@@ -31,7 +51,10 @@ reversed client id as a URL scheme (`CFBundleURLSchemes`). No AppDelegate change
 the redirect is picked up from React Native's `RCTOpenURLNotification`.
 
 **Android** — nothing beyond the dependency; no `google-services.json` requirement
-and no Play Services version pin in the app's `build.gradle`.
+and no Play Services version pin in the app's `build.gradle`. Sign-in is
+Credential Manager (authentication only); `scopes` / `offlineAccess` run the
+separate Authorization flow, so `serverAuthCode` comes from a second, cached
+consent step rather than the sign-in sheet itself.
 
 ## Development
 

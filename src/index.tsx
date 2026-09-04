@@ -2,11 +2,17 @@ import { NitroModules } from 'react-native-nitro-modules';
 import type {
   GoogleAuthErrorCode,
   GoogleAuthUser,
+  GoogleSignInOptions,
   GoogleSignInResult,
   ReactNativeGoogleAuth,
 } from './ReactNativeGoogleAuth.nitro';
 
-export type { GoogleAuthErrorCode, GoogleAuthUser, GoogleSignInResult };
+export type {
+  GoogleAuthErrorCode,
+  GoogleAuthUser,
+  GoogleSignInOptions,
+  GoogleSignInResult,
+};
 
 const native = NitroModules.createHybridObject<ReactNativeGoogleAuth>(
   'ReactNativeGoogleAuth'
@@ -25,11 +31,21 @@ export const GoogleAuth = {
     native.configure(config.webClientId, config.iosClientId);
   },
 
-  async signIn(): Promise<GoogleSignInResult> {
+  async signIn(options?: GoogleSignInOptions): Promise<GoogleSignInResult> {
     if (inFlight) return { errorCode: 'inProgress' };
     inFlight = true;
     try {
-      return await native.signIn();
+      return await native.signIn(options);
+    } finally {
+      inFlight = false;
+    }
+  },
+
+  async signInSilently(): Promise<GoogleSignInResult> {
+    if (inFlight) return { errorCode: 'inProgress' };
+    inFlight = true;
+    try {
+      return await native.signInSilently();
     } finally {
       inFlight = false;
     }
@@ -37,5 +53,13 @@ export const GoogleAuth = {
 
   signOut(): Promise<void> {
     return native.signOut();
+  },
+
+  revokeAccess(): Promise<void> {
+    return native.revokeAccess();
+  },
+
+  checkPlayServices(showDialog = true): Promise<boolean> {
+    return native.checkPlayServices(showDialog);
   },
 };

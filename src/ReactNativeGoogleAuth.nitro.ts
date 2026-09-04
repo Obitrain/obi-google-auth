@@ -11,16 +11,33 @@ export type GoogleAuthErrorCode =
   | 'noCredential'
   | 'error';
 
+export interface GoogleSignInOptions {
+  /** Extra OAuth scopes to request (openid/email/profile are implicit). */
+  scopes?: string[];
+  /**
+   * Request a one-time server auth code (result.serverAuthCode) the backend can
+   * exchange for access/refresh tokens. On Android this runs the Authorization
+   * flow after sign-in, which may show a consent screen.
+   */
+  offlineAccess?: boolean;
+}
+
 export interface GoogleAuthUser {
   /** Google ID token (JWT); its audience is the configured web client id. */
   idToken: string;
   email?: string;
   name?: string;
+  givenName?: string;
+  familyName?: string;
   photoUrl?: string;
 }
 
 export interface GoogleSignInResult {
   user?: GoogleAuthUser;
+  /** One-time code for backend token exchange; set when offlineAccess was requested. */
+  serverAuthCode?: string;
+  /** Scopes actually granted, when known (iOS always; Android when authorization ran). */
+  grantedScopes?: string[];
   errorCode?: GoogleAuthErrorCode;
   /** Native error description when errorCode is set. */
   errorMessage?: string;
@@ -36,8 +53,28 @@ export interface ReactNativeGoogleAuth
   configure(webClientId: string, iosClientId?: string): void;
 
   /** Opens the native account picker and resolves with a user or a typed error code. */
-  signIn(): Promise<GoogleSignInResult>;
+  signIn(options?: GoogleSignInOptions): Promise<GoogleSignInResult>;
+
+  /**
+   * Sign in without UI when possible: previously-authorized account only
+   * (iOS keychain session / Android auto-select). Resolves with 'noCredential'
+   * when there is nothing to restore.
+   */
+  signInSilently(): Promise<GoogleSignInResult>;
 
   /** iOS: GIDSignIn signOut. Android: clears the Credential Manager state. */
   signOut(): Promise<void>;
+
+  /**
+   * Best-effort unlink of the app from the Google account: iOS disconnect();
+   * Android revokes the silently-obtainable access token then clears
+   * credential state. Always resolves.
+   */
+  revokeAccess(): Promise<void>;
+
+  /**
+   * Android: whether Play Services are usable; with showDialog, shows Google's
+   * resolution dialog and resolves once available. iOS: always true.
+   */
+  checkPlayServices(showDialog: boolean): Promise<boolean>;
 }
