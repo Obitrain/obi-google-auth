@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write # npm trusted publishing (OIDC) + provenance, no token needed
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          registry-url: https://registry.npmjs.org
+
+      - run: corepack enable
+
+      - run: yarn install --immutable
+
+      - name: Check tag matches package version
+        if: github.ref_type == 'tag'
+        run: |
+          PKG="v$(node -p "require('./package.json').version")"
+          [ "$PKG" = "${{ github.ref_name }}" ] || { echo "package.json is $PKG, tag is ${{ github.ref_name }}"; exit 1; }
+
+      - name: Build
+        run: yarn prepare
+
+      - name: Publish to npm
+        run: npm publish --provenance
