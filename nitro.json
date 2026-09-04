@@ -1,0 +1,23 @@
+{
+  "cxxNamespace": ["obitrain_reactnativegoogleauth"],
+  "ios": {
+    "iosModuleName": "ReactNativeGoogleAuth"
+  },
+  "android": {
+    "androidNamespace": ["obitrain", "reactnativegoogleauth"],
+    "androidCxxLibName": "obitrain_reactnativegoogleauth"
+  },
+  "autolinking": {
+    "ReactNativeGoogleAuth": {
+      "ios": {
+        "language": "swift",
+        "implementationClassName": "ReactNativeGoogleAuth"
+      },
+      "android": {
+        "language": "kotlin",
+        "implementationClassName": "ReactNativeGoogleAuth"
+      }
+    }
+  },
+  "ignorePaths": ["node_modules"]
+}
