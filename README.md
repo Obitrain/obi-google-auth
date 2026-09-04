@@ -1,7 +1,9 @@
 # @obitrain/react-native-google-auth
 
-Google sign-in as a [Nitro module](https://nitro.margelo.com): GoogleSignIn SDK on iOS,
-Credential Manager on Android. Replaces `@react-native-google-signin/google-signin`
+Google sign-in as a [Nitro module](https://nitro.margelo.com):
+[GoogleSignIn SDK](https://github.com/google/GoogleSignIn-iOS) on iOS,
+[Credential Manager](https://developer.android.com/identity/sign-in/credential-manager) on Android.
+Replaces [`@react-native-google-signin/google-signin`](https://github.com/react-native-google-signin/google-signin)
 for the one thing obiapp needs — a Google ID token.
 
 ## Usage
@@ -39,3 +41,7 @@ yarn nitrogen   # regenerate nitrogen/ after touching src/*.nitro.ts
 yarn typecheck
 yarn prepare    # full bob build (nitrogen + module + types)
 ```
+
+## License
+
+MIT
