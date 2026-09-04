@@ -3,8 +3,8 @@
 Google sign-in as a [Nitro module](https://nitro.margelo.com):
 [GoogleSignIn SDK](https://github.com/google/GoogleSignIn-iOS) on iOS,
 [Credential Manager](https://developer.android.com/identity/sign-in/credential-manager) on Android.
-Replaces [`@react-native-google-signin/google-signin`](https://github.com/react-native-google-signin/google-signin)
-for the one thing obiapp needs — a Google ID token.
+Alternative to [`@react-native-google-signin/google-signin`](https://github.com/react-native-google-signin/google-signin)
+for apps that only need a Google ID token.
 
 ## Usage
 
