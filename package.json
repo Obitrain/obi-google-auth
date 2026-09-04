@@ -1,6 +1,6 @@
 {
   "name": "@obitrain/react-native-google-auth",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Google sign-in for Obitrain: GoogleSignIn SDK on iOS, Credential Manager on Android (Nitro module)",
   "main": "./lib/module/index.js",
   "types": "./lib/typescript/src/index.d.ts",
