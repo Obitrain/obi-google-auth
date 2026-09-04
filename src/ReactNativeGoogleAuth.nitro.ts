@@ -43,8 +43,10 @@ export interface GoogleSignInResult {
   errorMessage?: string;
 }
 
-export interface ReactNativeGoogleAuth
-  extends HybridObject<{ ios: 'swift'; android: 'kotlin' }> {
+export interface ReactNativeGoogleAuth extends HybridObject<{
+  ios: 'swift';
+  android: 'kotlin';
+}> {
   /**
    * webClientId is the OAuth web client id — the audience of the returned ID
    * token. iOS also needs the iOS client id: pass iosClientId or leave it
