@@ -65,6 +65,18 @@ yarn typecheck
 yarn prepare    # full bob build (nitrogen + module + types)
 ```
 
+## Releasing
+
+Merging to `main` never publishes. To release, open a release PR:
+
+```sh
+yarn release 0.2.0
+```
+
+It bumps `package.json` on a `release/0.2.0` branch and opens a PR whose description (drafted from the
+commits since the last tag) becomes the release notes — edit it before merging. Merging the PR runs
+`release.yml`: npm publish through trusted publishing, tag `v0.2.0` and the GitHub release.
+
 ## License
 
 MIT
