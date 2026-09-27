@@ -1706,7 +1706,7 @@ __metadata:
   peerDependencies:
     react: "*"
     react-native: "*"
-    react-native-nitro-modules: ^0.36.5
+    react-native-nitro-modules: ^0.37.1
   languageName: unknown
   linkType: soft
 
