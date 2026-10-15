@@ -8,6 +8,7 @@ import android.os.Looper
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CredentialManagerCallback
+import androidx.credentials.CredentialOption
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
 import androidx.credentials.GetCredentialResponse
@@ -26,6 +27,7 @@ import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.Scope
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GetSignInWithGoogleOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import com.margelo.nitro.NitroModules
 import com.margelo.nitro.core.Promise
@@ -91,10 +93,10 @@ class ReactNativeGoogleAuth : HybridReactNativeGoogleAuthSpec() {
     val wantsAuthorization =
       options?.offlineAccess == true || options?.scopes?.isNotEmpty() == true
 
-    credentialSignIn(activity, clientId, filterAuthorized = false) { result ->
+    interactiveSignIn(activity, clientId) { result ->
       if (result.user == null || !wantsAuthorization) {
         promise.resolve(result)
-        return@credentialSignIn
+        return@interactiveSignIn
       }
       authorize(activity, clientId, options!!) { auth, code, message ->
         if (auth == null) {
@@ -124,7 +126,7 @@ class ReactNativeGoogleAuth : HybridReactNativeGoogleAuthSpec() {
       promise.resolve(errorResult(GoogleAuthErrorCode.ERROR, "No context"))
       return promise
     }
-    credentialSignIn(ctx, clientId, filterAuthorized = true) { promise.resolve(it) }
+    credentialSignIn(ctx, googleIdOption(clientId, filterAuthorized = true)) { promise.resolve(it) }
     return promise
   }
 
@@ -191,17 +193,25 @@ class ReactNativeGoogleAuth : HybridReactNativeGoogleAuthSpec() {
     return promise
   }
 
-  private fun credentialSignIn(
-    ctx: Context,
-    clientId: String,
-    filterAuthorized: Boolean,
-    done: (GoogleSignInResult) -> Unit
-  ) {
-    val option = GetGoogleIdOption.Builder()
+  /** Account sheet first; with no usable account, the "Sign in with Google" flow (offers Add account). */
+  private fun interactiveSignIn(activity: Activity, clientId: String, done: (GoogleSignInResult) -> Unit) {
+    credentialSignIn(activity, googleIdOption(clientId, filterAuthorized = false)) { result ->
+      if (result.errorCode != GoogleAuthErrorCode.NOCREDENTIAL) {
+        done(result)
+        return@credentialSignIn
+      }
+      credentialSignIn(activity, GetSignInWithGoogleOption.Builder(clientId).build(), done)
+    }
+  }
+
+  private fun googleIdOption(clientId: String, filterAuthorized: Boolean) =
+    GetGoogleIdOption.Builder()
       .setFilterByAuthorizedAccounts(filterAuthorized)
       .setServerClientId(clientId)
       .setAutoSelectEnabled(filterAuthorized)
       .build()
+
+  private fun credentialSignIn(ctx: Context, option: CredentialOption, done: (GoogleSignInResult) -> Unit) {
     val request = GetCredentialRequest.Builder().addCredentialOption(option).build()
     CredentialManager.create(ctx).getCredentialAsync(
       ctx, request, null, executor,
@@ -285,9 +295,7 @@ class ReactNativeGoogleAuth : HybridReactNativeGoogleAuthSpec() {
 
   private fun toResult(response: GetCredentialResponse): GoogleSignInResult {
     val credential = response.credential
-    if (credential !is CustomCredential ||
-      credential.type != GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
-    ) {
+    if (credential !is CustomCredential || credential.type !in GOOGLE_CREDENTIAL_TYPES) {
       return errorResult(GoogleAuthErrorCode.ERROR, "Unexpected credential type: ${credential.type}")
     }
     val google = GoogleIdTokenCredential.createFrom(credential.data)
@@ -318,5 +326,9 @@ class ReactNativeGoogleAuth : HybridReactNativeGoogleAuthSpec() {
 
   companion object {
     private const val AUTHORIZE_REQUEST_CODE = 91427
+    private val GOOGLE_CREDENTIAL_TYPES = setOf(
+      GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL,
+      GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_SIWG_CREDENTIAL
+    )
   }
 }
