@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Handler
 import android.os.Looper
+import androidx.annotation.Keep
 import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CredentialManagerCallback
@@ -36,8 +37,9 @@ import java.net.URL
 import java.util.concurrent.Executors
 
 /** Nitro bridge: Credential Manager for sign-in, AuthorizationClient for scopes/auth code. */
+@Keep
 @DoNotStrip
-class ReactNativeGoogleAuth : HybridReactNativeGoogleAuthSpec() {
+class ReactNativeGoogleAuth @DoNotStrip constructor() : HybridReactNativeGoogleAuthSpec() {
   private var webClientId: String? = null
   private val executor = Executors.newSingleThreadExecutor()
   private val mainHandler = Handler(Looper.getMainLooper())
