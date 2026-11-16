@@ -1704,7 +1704,7 @@ __metadata:
     eslint-plugin-ft-flow: "npm:^3.0.11"
     eslint-plugin-prettier: "npm:^5.5.7"
     nitrogen: "npm:0.37.2"
-    prettier: "npm:^3.10.0"
+    prettier: "npm:^3.10.1"
     react: "npm:19.2.3"
     react-native: "npm:0.87.1"
     react-native-builder-bob: "npm:^0.44.1"
@@ -5426,7 +5426,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^3.10.0":
+"prettier@npm:^3.10.1":
   version: 3.10.1
   resolution: "prettier@npm:3.10.1"
   bin:
